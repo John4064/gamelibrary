@@ -5,40 +5,53 @@ pygame.init()
 winHeight=720
 winWidth = 720
 win = pygame.display.set_mode((winHeight,winWidth),display=1)
-count = 0
 pygame.display.set_caption("Space Invader")
-clock = pygame.time.Clock()
+temp = pygame.time.get_ticks()
 class game():
-    def input(self,keys,player):
-        global winHeight,winWidth,count
-        if (keys[pygame.K_a] or keys[pygame.K_LEFT])and player.x>(0):
-            player.x-=player.vel
-        elif (keys[pygame.K_d] or keys[pygame.K_RIGHT])and player.x<(winWidth-player.width):
-            player.x+=player.vel
-        elif(keys[pygame.K_SPACE]):
-            count+=1
-            print(count)
-        return
+    #Convert input to player
+
     def __init__(self):
         run = True
-
         player = spaceship(300, 600, 80, 80)
+        self.clock = pygame.time.Clock()
+        lasers = laser(200,200,8)
         while run:
-            clock.tick(60)
+            self.clock.tick(60)
             keys = pygame.key.get_pressed()
-            self.input(keys,player)
-            self.redrawGame(win,player)
+            player.input(keys,game)
+            self.redrawGame(win,player,lasers)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
 
-    def redrawGame(self,win,player):
+    def redrawGame(self,win,player,laser):
         win.blit(pygame.image.load('bg.png'), (0, 0))
         #man.draw(win)
+        #Update this in morning
+        laser.draw(win)
         player.draw(win,player.x,player.y)
         pygame.display.update()
+class laser(pygame.sprite.Sprite):
+    def draw(self,win):
+        pygame.draw.circle(win, (255,255,12), (self.x,self.y), 10)
+    def __init__(self,x,y,vel):
+        self.x =x
+        self.y =y
+        #vel = Velocity
+        self.vel =vel
+
 class spaceship(pygame.sprite.Sprite):
+    def input(self,keys,game):
+        global winHeight,winWidth,temp
+        if (keys[pygame.K_a] or keys[pygame.K_LEFT])and self.x>(0):
+            self.x-=self.vel
+        elif (keys[pygame.K_d] or keys[pygame.K_RIGHT])and self.x<(winWidth-self.width):
+            self.x+=self.vel
+        elif(keys[pygame.K_SPACE] and pygame.time.get_ticks()>temp+500):
+            temp = pygame.time.get_ticks()
+            print(temp)
+        return
     def draw(self,win,x,y):
         self.x = x
         self.y =y
